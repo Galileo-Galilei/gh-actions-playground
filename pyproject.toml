@@ -1,0 +1,3 @@
+[tool.bumpversion]
+current_version = "1.8.0"
+message = ":bookmark: Version updated from {current_version} to {new_version}"
