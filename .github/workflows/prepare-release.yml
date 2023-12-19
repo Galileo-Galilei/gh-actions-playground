@@ -35,7 +35,7 @@ jobs:
       run: |
         pip install bump2version
         bump2version ${{ github.event.inputs.version_part }}
-        echo "::set-output name=package_version::$(cat $PYTHON_PACKAGE/__init__.py | grep -Po  '\d+\.\d+\.\d+')"
+        echo "package_version=$(cat $PYTHON_PACKAGE/__init__.py | grep -Po  '\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
     - name: Update the CHANGELOG according to 'Keep a Changelog' guidelines
       uses: thomaseizinger/keep-a-changelog-new-release@v1
       with:
@@ -58,7 +58,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         base : master
         delete-branch: true 
-        branch: release-${{ steps.bump_version.outputs.package_version }}
+        # branch: release-${{ steps.bump_version.outputs.package_version }}
         title: "Release ${{ steps.bump_version.outputs.package_version }}"
         body: "Bump version and CHANGELOG for next release."
         assignees: "${{ github.repository_owner }}"
