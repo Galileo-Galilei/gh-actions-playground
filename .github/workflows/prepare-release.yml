@@ -51,19 +51,12 @@ jobs:
         git commit -am "Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }}"
         git push
     - name: Open a PR to merge the release to master
+      id: open_pr 
       run: |
-        gh pr create -B main -H release-${{ steps.bump_version.outputs.package_version }} --title "Release ${{ steps.bump_version.outputs.package_version }}" --body "Bump version and CHANGELOG for next release."
-        git push
-      # id: open_pr
-      # uses: peter-evans/create-pull-request@v5
+        gh pr create -B main -H release-${{ steps.bump_version.outputs.package_version }} --title "Release ${{ steps.bump_version.outputs.package_version }}" --body "Bump version and CHANGELOG for next release." --assignee "${{ github.repository_owner }}"
+        echo "pull_request_number=$(gh pr list --base main --json number,createdAt --jq 'sort_by(.createdAt) | reverse | .[0].number')" >> $GITHUB_OUTPUT
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   base : main
-      #   delete-branch: true 
-      #   branch: release-${{ steps.bump_version.outputs.package_version }}
-      #   title: "Release ${{ steps.bump_version.outputs.package_version }}"
-      #   body: "Bump version and CHANGELOG for next release."
-      #   assignees: "${{ github.repository_owner }}"
     - name: Change the commit message to add PR number
       run: |
         git commit -a --amend -m ":rocket: Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }} (#${{ steps.open_pr.outputs.pull_request_number }})"
