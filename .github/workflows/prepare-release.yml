@@ -53,14 +53,15 @@ jobs:
         git push
     - name: Open a PR to merge the release to master
       id: open_pr
-      uses: vsoch/pull-request-action@1.1.0
+      uses: peter-evans/create-pull-request@v5
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PULL_REQUEST_BRANCH: master
-        PULL_REQUEST_FROM_BRANCH: release-${{ steps.bump_version.outputs.package_version }}
-        PULL_REQUEST_TITLE: "Release ${{ steps.bump_version.outputs.package_version }}"
-        PULL_REQUEST_BODY: "Bump version and CHANGELOG for next release."
-        PULL_REQUEST_ASSIGNEES: "${{ github.repository_owner }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        base : master
+        delete-branch: true 
+        branch: release-${{ steps.bump_version.outputs.package_version }}
+        title: "Release ${{ steps.bump_version.outputs.package_version }}"
+        body: "Bump version and CHANGELOG for next release."
+        assignees: "${{ github.repository_owner }}"
     - name: Change the comit message to add PR number
       run: |
         git commit -a --amend -m ":rocket: Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }} (#${{ steps.open_pr.outputs.pull_request_number }})"
