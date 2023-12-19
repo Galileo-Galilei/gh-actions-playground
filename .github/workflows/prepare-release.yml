@@ -57,11 +57,11 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         base : master
         delete-branch: true 
-        # branch: release-${{ steps.bump_version.outputs.package_version }}
+        branch: release-${{ steps.bump_version.outputs.package_version }}
         title: "Release ${{ steps.bump_version.outputs.package_version }}"
         body: "Bump version and CHANGELOG for next release."
         assignees: "${{ github.repository_owner }}"
-    - name: Change the comit message to add PR number
+    - name: Change the commit message to add PR number
       run: |
         git commit -a --amend -m ":rocket: Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }} (#${{ steps.open_pr.outputs.pull_request_number }})"
         git push -f
