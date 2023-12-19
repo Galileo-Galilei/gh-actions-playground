@@ -1,30 +1,30 @@
-name: create-release
+name: create-release-candidate
 
 on:
   workflow_dispatch:
     inputs:
       version_part:
-        type: choice
         description: The part of the version to update (patch, minor or major)
+        type: choice
         options:
         - patch
         - minor
         - major
+        default: 'patch'
         required: true
-        default: 'minor'
 
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.11]
     env:
-      PYTHON_PACKAGE: gh_actions_playground
+      PYTHON_PACKAGE: kedro_mlflow
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Validate inputs
@@ -34,7 +34,7 @@ jobs:
       id: bump_version
       run: |
         pip install bump2version
-        bump2version ${{ github.event.inputs.version_part }} $PYTHON_PACKAGE/__init__.py
+        bump2version ${{ github.event.inputs.version_part }}
         echo "::set-output name=package_version::$(cat $PYTHON_PACKAGE/__init__.py | grep -Po  '\d+\.\d+\.\d+')"
     - name: Update the CHANGELOG according to 'Keep a Changelog' guidelines
       uses: thomaseizinger/keep-a-changelog-new-release@v1
@@ -46,9 +46,13 @@ jobs:
         git config user.email github-actions@github.com
         git checkout -b release-${{ steps.bump_version.outputs.package_version }}
         git push -u origin release-${{ steps.bump_version.outputs.package_version }}
+    - name: Commit the changes
+      run: |
+        git commit -am "Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }}"
+        git push
     - name: Open a PR to merge the release to master
       id: open_pr
-      uses: vsoch/pull-request-action@1.0.12
+      uses: vsoch/pull-request-action@1.0.23
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PULL_REQUEST_BRANCH: master
@@ -56,18 +60,7 @@ jobs:
         PULL_REQUEST_TITLE: "Release ${{ steps.bump_version.outputs.package_version }}"
         PULL_REQUEST_BODY: "Bump version and CHANGELOG for next release."
         PULL_REQUEST_ASSIGNEES: "${{ github.repository_owner }}"
-    - name: Commit the changes
+    - name: Change the comit message to add PR number
       run: |
-        git commit -am "FIX #${{ steps.open_pr.outputs.pull_request_number }}  - Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }}"
-        git push
-    # - name: Open a PR to merge the release to master
-    #   id: pr_master
-    #   uses: vsoch/pull-request-action@1.0.6
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     PULL_REQUEST_BRANCH: master
-    #     PULL_REQUEST_FROM_BRANCH: develop
-    #     PULL_REQUEST_TITLE: "Release ${{ steps.bump_version.outputs.package_version }}"
-    #     PULL_REQUEST_DRAFT: True
-    #     PULL_REQUEST_BODY: "This PR must not be merged until #${{ steps.pr_develop.outputs.pull_request_number }} is merged in develop."
-    #     # PULL_REQUEST_ASSIGNEES: "${{ github.repository_owner }}"
+        git commit -a --amend -m ":rocket: Bump version and CHANGELOG for release ${{ steps.bump_version.outputs.package_version }} (#${{ steps.open_pr.outputs.pull_request_number }})"
+        git push -f
