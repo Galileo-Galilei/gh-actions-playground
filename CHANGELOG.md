@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.8.1] - 2023-12-19
+
 ## [1.8.0] - 2020-12-13
 
 ## [1.1.0] - 2020-12-13
@@ -57,7 +59,9 @@
 -   Fake add 1
 -   Fake add 2
 
-[Unreleased]: https://github.com/Galileo-Galilei/gh-actions-playground/compare/1.8.0...HEAD
+[Unreleased]: https://github.com/Galileo-Galilei/gh-actions-playground/compare/1.8.1...HEAD
+
+[1.8.1]: https://github.com/Galileo-Galilei/gh-actions-playground/compare/1.8.0...1.8.1
 
 [1.8.0]: https://github.com/Galileo-Galilei/gh-actions-playground/compare/1.1.0...1.8.0
 
