@@ -20,7 +20,7 @@ jobs:
       matrix:
         python-version: [3.11]
     env:
-      PYTHON_PACKAGE: kedro_mlflow
+      PYTHON_PACKAGE: gh_actions_playground
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
